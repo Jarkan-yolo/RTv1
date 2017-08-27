@@ -6,11 +6,11 @@
 /*   By: mhalit <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/08/03 00:09:53 by mhalit            #+#    #+#             */
-/*   Updated: 2017/08/17 21:21:50 by rlecart          ###   ########.fr       */
+/*   Updated: 2017/08/27 16:25:15 by jribeiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "rt.h"
+#include <rt.h>
 
 void	display_args(void)
 {
@@ -19,40 +19,44 @@ void	display_args(void)
 	ft_putstr("-w : Width of the window, default 500px\n");
 	ft_putstr("-h : Height of the window, default 500px\n");
 	ft_putstr("--help : Show help\n");
-	ft_putstr("-a : Set the antialiasing technique to the image\n");
 	exit(42);
 }
 
-void		init_rt(t_rt *e)
+void		init_rt(t_rt *env)
 {
-	e->mlx.init = mlx_init();
-	e->file.larg = 1024;
-	e->file.haut = 768;
-	e->scene.nbr_obj = 0;
-	e->scene.nbr_light = 0;
-	e->scene.nbr_tot = 0;
-	e->scene.obj = (t_obj *)malloc(sizeof(t_obj) * MAXOBJ);
-	e->scene.lights = (t_light *)malloc(sizeof(t_light) * MAXLIGHT);
-	e->scene.supersampling = 1;
-	e->scene.filters = 0;
+	env->mlx.init = mlx_init();
+	env->file.larg = 1024;
+	env->file.haut = 768;
+	env->scene.nbr_obj = 0;
+	env->scene.nbr_light = 0;
+	env->scene.nbr_tot = 0;
+	env->scene.obj = (t_obj *)malloc(sizeof(t_obj) * MAXOBJ);
+	env->scene.lights = (t_light *)malloc(sizeof(t_light) * MAXLIGHT);
+	env->scene.supersampling = 0;
 }
 
 int			main(int argc, char **argv)
 {
-	t_rt	*e;
+	t_rt	*env;
 
-	e = NULL;
-	e = (t_rt *)malloc(sizeof(t_rt));
+	env = NULL;
+	env = (t_rt *)malloc(sizeof(t_rt));
 	if (argc > 2)
 	{
-		init_rt(e);
-		if (!parse_args(argv, argc, e))
+		init_rt(env);
+		if (!parse_args(argv, argc, env))
 			return (0);
 		if (!HAUTEUR || !LARGEUR)
 			return (0);
-		e->mlx.window = mlx_new_window(e->mlx.init, e->file.larg, e->file.haut, "RT Again");
-		frame(e);
-		mlx_key_hook(e->mlx.window, key_hook, e);
+		env->mlx.window = mlx_new_window(env->mlx.init, env->file.larg, env->file.haut, "RT Again");
+		printf("ENTER FRAME\n");
+		frame(env);
+		printf("FRAME OK\n");
+		// if (env->scene.supersampling)
+		// 	super_sampler(env);
+		// else
+		// 	anti_supersampler(env);
+		mlx_key_hook(env->mlx.window, key_hook, env);
 		mlx_loop(INIT);
 	}
 	else

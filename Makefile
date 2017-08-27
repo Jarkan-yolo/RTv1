@@ -6,7 +6,7 @@
 #    By: ocojeda- <ocojeda-@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/03/26 19:16:02 by bbeldame          #+#    #+#              #
-#    Updated: 2017/08/14 22:04:16 by rlecart          ###   ########.fr        #
+#    Updated: 2017/08/27 21:46:22 by jribeiro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,13 +28,13 @@ SRC			=	color.c \
 				set_ocl.c \
 				sphere.c \
 				supersampler.c \
-				filters.c
+				copyrt.c
 MINILIBX	=	minilibx_macos/libmlx.a
 LIBFT		=	libft/libft.a
 LIBVEC		=	libvec/libvec.a
 OBJ			=	$(addprefix $(OBJDIR),$(SRC:.c=.o))
 CC			=	gcc
-CFLAGS		=	-Wall -Werror -Wextra -I includes/ -I libft/includes/ -I libvec/includes/
+CFLAGS		=	-g -Wall -Werror -Wextra -I includes/ -I libft/includes/ -I libvec/includes/
 OPTI		=	-O3
 DEBUG		=	-g
 MLXF		=	-framework OpenGL -framework AppKit

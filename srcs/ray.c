@@ -6,11 +6,11 @@
 /*   By: bbeldame <bbeldame@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/03/24 14:55:55 by tfaure            #+#    #+#             */
-/*   Updated: 2017/08/18 00:53:04 by rlecart          ###   ########.fr       */
+/*   Updated: 2017/08/15 11:49:44 by mhalit           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "rt.h"
+#include <rt.h>
 
 float	get_length(t_vec3 v)
 {
@@ -24,14 +24,4 @@ t_ray		c_ray(t_vec3 i, t_vec3 j)
 	ray.pos = vec_new3(i.x, i.y, i.z);
 	ray.dir = vec_new3(j.x, j.y, j.z);
 	return (ray);
-}
-
-t_vec3			get_vec(int x, int y, t_vec3 dir)
-{
-	t_vec3	ret;
-
-	ret.x = WIDTH / 2 - x + dir.x;
-	ret.y = HEIGHT / 2 - y + dir.y;
-	ret.z = 250 + dir.z;
-	return (ret);
 }

@@ -6,27 +6,27 @@
 /*   By: mhalit <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/08/03 06:21:43 by mhalit            #+#    #+#             */
-/*   Updated: 2017/08/17 21:21:51 by rlecart          ###   ########.fr       */
+/*   Updated: 2017/08/14 21:57:06 by rlecart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "rt.h"
+#include <rt.h>
 
-int		set_last(t_rt *e, char **params)
+int		set_last(t_rt *env, char **params)
 {
-	if (!ft_strcmp("sphere:", e->scene.last) ||
-		!ft_strcmp("plane:", e->scene.last) ||
-		!ft_strcmp("cone:", e->scene.last) ||
-		!ft_strcmp("cylinder:", e->scene.last))
-		return (set_obj(e, params));
-	if (!ft_strcmp("light:", e->scene.last))
-		return (set_light(e, params));
-	if (!ft_strcmp("camera:", e->scene.last))
-		return (set_camera(e, params));
+	if (!ft_strcmp("sphere:", env->scene.last) ||
+		!ft_strcmp("plane:", env->scene.last) ||
+		!ft_strcmp("cone:", env->scene.last) ||
+		!ft_strcmp("cylinder:", env->scene.last))
+		return (set_obj(env, params));
+	if (!ft_strcmp("light:", env->scene.last))
+		return (set_light(env, params));
+	if (!ft_strcmp("camera:", env->scene.last))
+		return (set_camera(env, params));
 	return (0);
 }
 
-int		set_obj(t_rt *e, char **a)
+int		set_obj(t_rt *env, char **a)
 {
 	int		i;
 
@@ -54,7 +54,7 @@ int		set_obj(t_rt *e, char **a)
 	return (1);
 }
 
-int		set_light(t_rt *e, char **a)
+int		set_light(t_rt *env, char **a)
 {
 	int		i;
 
@@ -74,7 +74,7 @@ int		set_light(t_rt *e, char **a)
 	return (1);
 }
 
-int		set_camera(t_rt *e, char **a)
+int		set_camera(t_rt *env, char **a)
 {
 	int		i;
 
@@ -82,13 +82,13 @@ int		set_camera(t_rt *e, char **a)
 	while (a[i])
 		i++;
 	if (i == 4 && !ft_strcmp("pos:", a[0]))
-		e->scene.cam.ray.pos =
+		env->scene.cam.ray.pos =
 			vec_new3(ft_atof(a[1]), ft_atof(a[2]), ft_atof(a[3]));
 	else if (i == 4 && !ft_strcmp("dir:", a[0]))
-		e->scene.cam.ray.dir =
+		env->scene.cam.ray.dir =
 			vec_new3(ft_atof(a[1]), ft_atof(a[2]), ft_atof(a[3]));
 	else if (i == 2 && !ft_strcmp("focale:", a[0]))
-		e->scene.cam.focale = ft_atof(a[1]);
+		env->scene.cam.focale = ft_atof(a[1]);
 	else
 		return (0);
 	return (1);

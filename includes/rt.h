@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rt.h                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tfaure <tfaure@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhalit <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/04/01 12:28:36 by mhalit            #+#    #+#             */
-/*   Updated: 2017/08/24 22:58:46 by mhalit           ###   ########.fr       */
+/*   Updated: 2017/08/27 23:34:20 by jribeiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define RT_H
 
 # include "libft.h"
-# include "mlx.h"
+# include "../minilibx_macos/mlx.h"
 # include "libvec.h"
 # include <math.h>
 # include <stdio.h>
@@ -24,8 +24,15 @@
 
 # define AP 81
 # define AM 75
-# define HEIGHT 500
-# define WIDTH 500
+# define ESC 53
+# define UP 126
+# define DOWN 125
+# define LEFT 123
+# define RIGHT 124
+# define HEIGHT 250
+# define WIDTH 250
+# define PLUS 69
+# define MINUS 78
 # define EPSILON 1e-9
 # define EXTENSION ".rt"
 # define ERR -1
@@ -46,60 +53,35 @@
 # define CYAN		6
 # define WHITE		7
 
-# define ESC		53
-# define BACKSPACE	51
-# define SPACE		49
-# define LSHIFT		257
-# define ENTER		36
-# define KEY_1		18
-# define KEY_2		19
-# define KEY_3		20
-# define KEY_4		21
-# define PLUS		69
-# define MINUS		78
-# define UP			126
-# define DOWN		125
-# define LEFT		123
-# define RIGHT		124
-# define PAGE_UP	116
-# define PAGE_DOWN	121
-# define KEY_W		13
-# define KEY_A		0
-# define KEY_S		1
-# define KEY_D		2
-
-# define INIT e->mlx.init
-# define WIN e->mlx.window
-# define IMG e->mlx.image
-# define DATA e->mlx.data
-# define SS (e->scene.supersampling)
-# define HAUTEUR e->file.haut
-# define LARGEUR e->file.larg
-# define SFILE e->file.path
-# define CPOS e->scene.cam.ray.pos
-# define CDIR e->scene.cam.ray.dir
-# define CAMRAY e->cam.ray
+# define INIT env->mlx.init
+# define WIN env->mlx.window
+# define IMG env->mlx.image
+# define SS (env->scene.supersampling + 1)
+# define HAUTEUR env->file.haut
+# define LARGEUR env->file.larg
+# define SFILE env->file.path
+# define POS env->scene.cam.ray.pos
+# define DIR env->scene.cam.ray.pos
+# define CAMRAY env->cam.ray
 # define COLOR scene.obj[i].color
 # define COBJ scene.obj[i]
 # define CLIGHT scene.lights[i]
-# define SOBJ e->scene.obj[e->scene.nbr_obj - 1]
-# define SLIGHT e->scene.lights[e->scene.nbr_light - 1]
+# define SOBJ env->scene.obj[env->scene.nbr_obj - 1]
+# define SLIGHT env->scene.lights[env->scene.nbr_light - 1]
 # define ABS(x) (x < 0 ? -x : x)
 # define MAXOBJ 50
 # define MAXLIGHT 21
 
-# define WSS LARGEUR * SS
-# define HSS HAUTEUR * SS
+# define NB_THREADS 128
 
 # define DEFAULT_SUPERSAMPLING 0
 # define FOV 30
 # define KEY_ESC 53
 # define DIST_MAX 20000
 # define DIST_MIN -80000
-# define AMBIENT_LIGHT 30
+# define AMBIENT_LIGHT 50
+
 # define AVERAGE(a, b)   ( ((((a) ^ (b)) & 0xfffefefeL) >> 1) + ((a) & (b)) )
-# define FT_MIN(x, y) ((x < y) ? x : y)
-# define FT_MAX(x, y) ((x > y) ? x : y)
 
 typedef struct		s_ray
 {
@@ -203,53 +185,45 @@ typedef struct		s_scene
 	char			nbr_tot;
 	int 			id;
 	int				supersampling;
-	int 			filters;
 	t_camera		cam;
 }					t_scene;
 
 typedef struct		s_rt
 {
+	int				y;
 	t_mlx			mlx;
 	t_scene			scene;
 	t_file			file;
+	t_color			*colors;
 	unsigned int 	*img_temp;
 }					t_rt;
 
+t_rt				*copy_rt(t_rt *);
 void				display_args(void);
 t_matiere			create_matiere(void);
-int					set_obj(t_rt *e, char **a);
-int					set_light(t_rt *e, char **a);
-int					set_camera(t_rt *e, char **a);
-int					set_last(t_rt *e, char **params);
-int					camera_create(t_rt *e);
-int					create_obj(int type, t_rt *e);
-int					create_light(t_rt *e);
+int					set_obj(t_rt *env, char **a);
+int					set_light(t_rt *env, char **a);
+int					set_camera(t_rt *env, char **a);
+int					set_last(t_rt *env, char **params);
+int					camera_create(t_rt *env);
+int					create_obj(int type, t_rt *env);
+int					create_light(t_rt *env);
 t_color				c_color(float r, float g, float b);
-int					parse_args(char **argv, int argc, t_rt *e);
-int					parse_obj(t_rt *e, int fd);
-void				store_type_or_data(char *line, t_rt *e);
-void				frame(t_rt *e);
-void				mlx_pixel(int x, int y, t_rt *e, int color);
-void      			fl_sepia_apply(t_rt *e);
-void       			fl_black_and_white(t_rt *e);
+int					parse_args(char **argv, int argc, t_rt *env);
+int					parse_obj(char *path, t_rt *env);
+void				store_type_or_data(char *line, t_rt *env);
+void				frame(t_rt *env);
+void				mlx_pixel(int x, int y, t_rt *env, int color);
 
-//hook
-
-void				mv_plus_minus(t_rt *e, float *a, float value, int bol);
-void				udlr_(int keycode, t_rt *e);
-int					key_hook(int keycode, t_rt *e);
-void 				wasd_(int keycode, t_rt *e);
 //OLD
 
 unsigned int		ret_colors(t_color color);
 t_ray				c_ray(t_vec3 i, t_vec3 j);
-t_vec3				get_vec(int x, int y, t_vec3 dir);
 t_color				raytrace(int x, int y, t_rt *e);
-void				super_sampler(t_rt *e);
-void				anti_supersampler(t_rt *e);
-void				anti_aliasing_on(t_rt *e, unsigned int *img_temp);
-void				anti_aliasing_off(t_rt *e);
+void				super_sampler(t_rt *env);
+void				anti_supersampler(t_rt *env);
 float				intersect_sphere(t_ray ray, t_obj sphere);
+int					key_hook(int keycode, t_rt *e);
 t_color				color_mult(t_color color, float taux);
 float				get_length(t_vec3 v);
 float				intersect_plane(t_ray ray, t_obj sphere);
@@ -258,7 +232,7 @@ t_color				copy_color(t_color color);
 float				intersect_cone(t_ray ray, t_obj cone);
 float				intensity_cone(t_rt *e, t_vec3 poi,
 						t_obj cone, t_light light);
-float				intensity_sphere(t_vec3 poi,
+float				intensity_sphere(t_rt *e, t_vec3 poi,
 						t_obj sphere, t_light light);
 float				intensity_plane(t_rt *e, t_vec3 poi,
 						t_obj plane, t_light light);
