@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rt.h                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhalit <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: tfaure <tfaure@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/04/01 12:28:36 by mhalit            #+#    #+#             */
-/*   Updated: 2017/08/27 23:34:20 by jribeiro         ###   ########.fr       */
+/*   Updated: 2017/09/24 15:21:57 by jribeiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define RT_H
 
 # include "libft.h"
-# include "../minilibx_macos/mlx.h"
+# include "../libs/minilibx/mlx.h"
 # include "libvec.h"
 # include <math.h>
 # include <stdio.h>
@@ -22,17 +22,26 @@
 # include <fcntl.h>
 # include <unistd.h>
 
+# include "parser.h"
+# include "tree.h"
+# include "xmlIO.h"
+# include "xinclude.h"
+# include "valid.h"
+# include "xmlschemas.h"
+# include "xmlstring.h"
+# include "xmlreader.h"
+
+// # include <gtk/gtk.h>
+
+# define RT_XSD "validator.xsd"
+# define RT_DTD "validator.dtd"
+# define STD_ERR 2
+# define ROOT_NAME "scene"
+
 # define AP 81
 # define AM 75
-# define ESC 53
-# define UP 126
-# define DOWN 125
-# define LEFT 123
-# define RIGHT 124
-# define HEIGHT 250
-# define WIDTH 250
-# define PLUS 69
-# define MINUS 78
+# define HEIGHT 500
+# define WIDTH 500
 # define EPSILON 1e-9
 # define EXTENSION ".rt"
 # define ERR -1
@@ -42,46 +51,82 @@
 # define PLANE 2
 # define SPHERE 3
 # define CYLINDER 4
-# define LIGHT 1
-# define OBJ 2
-# define BLACK		0
-# define RED		1
-# define GREEN		2
-# define YELLOW		3
-# define BLUE		4
-# define MAGENTA	5
-# define CYAN		6
-# define WHITE		7
+# define MICKEY 5
+# define DICK 6
 
-# define INIT env->mlx.init
-# define WIN env->mlx.window
-# define IMG env->mlx.image
-# define SS (env->scene.supersampling + 1)
-# define HAUTEUR env->file.haut
-# define LARGEUR env->file.larg
-# define SFILE env->file.path
-# define POS env->scene.cam.ray.pos
-# define DIR env->scene.cam.ray.pos
-# define CAMRAY env->cam.ray
+# define LIGHT 21
+# define CAMERA 22
+
+# define ESC		53
+# define BACKSPACE	51
+# define SPACE		49
+# define LSHIFT		257
+# define ENTER		36
+# define KEY_1		18
+# define KEY_2		19
+# define KEY_3		20
+# define KEY_4		21
+# define PLUS		69
+# define MINUS		78
+# define UP			126
+# define DOWN		125
+# define LEFT		123
+# define RIGHT		124
+# define PAGE_UP	116
+# define PAGE_DOWN	121
+# define KEY_W		13
+# define KEY_A		0
+# define KEY_S		1
+# define KEY_D		2
+# define KEY_N8		91
+# define KEY_N2		84
+# define INIT e->mlx.init
+# define WIN e->mlx.window
+# define IMG e->mlx.image
+# define DATA e->mlx.data
+# define RES e->file.reso
+# define SS (e->scene.supersampling)
+# define HAUTEUR e->file.haut
+# define LARGEUR e->file.larg
+# define SFILE e->file.path
+# define CPOS e->scene.cam.ray.pos
+# define CDIR e->scene.cam.ray.dir
+# define CAMRAY e->cam.ray
 # define COLOR scene.obj[i].color
 # define COBJ scene.obj[i]
 # define CLIGHT scene.lights[i]
-# define SOBJ env->scene.obj[env->scene.nbr_obj - 1]
-# define SLIGHT env->scene.lights[env->scene.nbr_light - 1]
-# define ABS(x) (x < 0 ? -x : x)
+# define SOBJ e->scene.obj[e->scene.nbr_obj - 1]
+# define SLIGHT e->scene.lights[e->scene.nbr_light - 1]
+# define AMBIENT_LIGHT e->scene.ambient
 # define MAXOBJ 50
 # define MAXLIGHT 21
 
-# define NB_THREADS 128
+# define WSS (LARGEUR * SS)
+# define HSS (HAUTEUR * SS)
+# define RES_H (HAUTEUR / RES)
+# define RES_W (LARGEUR / RES)
 
 # define DEFAULT_SUPERSAMPLING 0
-# define FOV 30
+# define FOVL 110
+# define FOVH 90
 # define KEY_ESC 53
 # define DIST_MAX 20000
 # define DIST_MIN -80000
-# define AMBIENT_LIGHT 50
-
+# define EPSILON 1e-9
 # define AVERAGE(a, b)   ( ((((a) ^ (b)) & 0xfffefefeL) >> 1) + ((a) & (b)) )
+# define FT_MIN(x, y) ((x < y) ? x : y)
+# define FT_MAX(x, y) ((x > y) ? x : y)
+# define PX_WHI 0x00FFFFFF
+
+# define NB_THREADS 8
+# define GTK_W 300
+# define GTK_H 200	
+
+typedef struct		s_vec2
+{
+	float			x;
+	float			y;
+}					t_vec2;
 
 typedef struct		s_ray
 {
@@ -108,8 +153,18 @@ typedef struct		s_light
 typedef struct		s_camera
 {
 	t_ray			ray;
+	t_vec3		px;
+	t_mtrx4		ctw;
+	float		fov;
+	t_vec3		transl;
+	float		rotx;
+	float		roty;
+	float		rotz;
+	float		ratio_x;
+	float		ratio_y;
 	float			focale;
 	float			reso;
+	float			aspect;
 }					t_camera;
 
 typedef struct		s_mlx
@@ -123,9 +178,19 @@ typedef struct		s_mlx
 	int				endian;
 }					t_mlx;
 
+typedef struct	s_texture
+{
+	void		*img;
+	char		*data;
+	int			bpp;
+	int			size_l;
+	int			endian;
+	int			width;
+	int			height;
+}				t_texture;
+
 typedef struct		s_matiere
 {
-	float			amb;
 	t_color			diffuse;
 	float			reflex;
 	float			specular;
@@ -135,6 +200,7 @@ typedef struct		s_matiere
 	float			absorbtion;
 	char			*coeff;
 	char			opacite;
+	t_texture		texture;
 }					t_matiere;
 
 typedef struct		s_calc
@@ -156,6 +222,8 @@ typedef struct		s_file
 	char			*path;
 	int				haut;
 	int				larg;
+	int 			fdp;
+	int 			reso;
 }					t_file;
 
 typedef struct		s_obj
@@ -165,7 +233,7 @@ typedef struct		s_obj
 	t_color			color;
 	t_vec3			pos;
 	t_vec3			dir;
-	float			size;
+	float			angle;
 	t_vec3			vector; //For Plane, Cylinder, Cone and Sphere
 	t_vec3			maxp; //For Cylinder and Cone
 	t_vec3			minp; //For Cone
@@ -173,66 +241,140 @@ typedef struct		s_obj
 	float			t;
 	t_vec3			normal;
 	t_matiere		mat;
+	int				plimit_active;
+	int				plimit_type;
+	int				plimit_valid;
+	struct s_obj	*plimit;
 }					t_obj;
 
 typedef struct		s_scene
 {
 	t_light			*lights;
 	t_obj			*obj;
-	char			*last;
+	int				last;
+	float			ambient;
 	int				nbr_light;
 	int				nbr_obj;
 	char			nbr_tot;
 	int 			id;
 	int				supersampling;
+	int 			filters;
 	t_camera		cam;
 }					t_scene;
 
+typedef struct		s_screen
+{
+	float			pos;
+	float			pitch;
+	float			yaw;
+}					t_screen;
+
+typedef struct		s_mthread
+{
+	int 			y;
+	t_color			*colors;
+}					t_mthread;
+
+// typedef struct		s_gtk_input
+// {
+// 	gint			pos_x;
+// 	gint			pos_y;
+// 	gint			max_size;
+// 	gint			max_char;
+// 	gchar			*placeholder;
+// 	gchar  			*deflaut_value;
+// }					t_gtk_input;
+
+// typedef struct		s_gtk_win
+// {
+// 	GtkWidget 			*window;
+// 	GtkWidget			*layout;
+// }					t_gtk_win;
+
+// typedef struct		s_gtk
+// {
+// 	t_gtk_win			menu;
+// 	t_gtk_win			set;
+// }					t_gtk;
+
 typedef struct		s_rt
 {
-	int				y;
 	t_mlx			mlx;
+	//t_gtk			gtk;
 	t_scene			scene;
 	t_file			file;
-	t_color			*colors;
-	unsigned int 	*img_temp;
+	t_mthread		thread;
+	unsigned int	*img_temp;
 }					t_rt;
 
-t_rt				*copy_rt(t_rt *);
 void				display_args(void);
 t_matiere			create_matiere(void);
-int					set_obj(t_rt *env, char **a);
-int					set_light(t_rt *env, char **a);
-int					set_camera(t_rt *env, char **a);
-int					set_last(t_rt *env, char **params);
-int					camera_create(t_rt *env);
-int					create_obj(int type, t_rt *env);
-int					create_light(t_rt *env);
+int					set_obj(t_rt *e, char **a);
+int					set_light(t_rt *e, char **a);
+int					set_camera(t_rt *e, char **a);
+int					set_last(t_rt *e, char **params);
+int					camera_create(t_rt *e);
+int					create_obj(int type, t_rt *e);
+int					create_light(t_rt *e);
+void 				create_complex(t_rt *e);
 t_color				c_color(float r, float g, float b);
-int					parse_args(char **argv, int argc, t_rt *env);
-int					parse_obj(char *path, t_rt *env);
-void				store_type_or_data(char *line, t_rt *env);
-void				frame(t_rt *env);
-void				mlx_pixel(int x, int y, t_rt *env, int color);
+int					parse_args(char **argv, int argc, t_rt *e);
+int					parse_obj(t_rt *e, int fd);
+void				store_type_or_data(char *line, t_rt *e);
+void				frame(t_rt *e);
+void				mlx_pixel(int x, int y, t_rt *e, int color);
+void      			fl_sepia_apply(t_rt *e);
+void       			fl_black_and_white(t_rt *e);
+void				fl_border_limits(t_rt *e);
+void				fl_border(t_rt *e);
+void				fl_revers(t_rt *e);
+void				disp_cam(t_rt *e);
 
+//hook
+
+void				mv_plus_minus(t_rt *e, float *a, float value, int bol);
+void				udlr_(int keycode, t_rt *e);
+int					key_hook(int keycode, t_rt *e);
+void 				wasd_(int keycode, t_rt *e);
+void				resolution(int keycode, t_rt *e);
+void				exportimg(int keycode, t_rt *e);
+void				numeric_(int keycode, t_rt *e);
+
+
+//Multithreading
+
+t_light				copy_light(t_light light);
+t_obj				copy_objs(t_obj obj);
+t_scene				copy_scene(t_scene scene);
+t_rt				*copy_rt(t_rt *e);
+void				*drawline(void *arg);
+t_rt            	**launch_thread(t_rt *env);
 //OLD
+
+
+//Beta option
+
+void  				pixel_to_image(int x, int y, t_rt *e, int color);
 
 unsigned int		ret_colors(t_color color);
 t_ray				c_ray(t_vec3 i, t_vec3 j);
+t_ray				ray_init(t_rt *e, float x, float y);
 t_color				raytrace(int x, int y, t_rt *e);
-void				super_sampler(t_rt *env);
-void				anti_supersampler(t_rt *env);
-float				intersect_sphere(t_ray ray, t_obj sphere);
-int					key_hook(int keycode, t_rt *e);
+void				super_sampler(t_rt *e);
+void				anti_supersampler(t_rt *e);
+void				anti_aliasing_on(t_rt *e, unsigned int *img_temp);
+void				anti_aliasing_off(t_rt *e);
+float				intersect_sphere(t_ray ray, t_obj *sphere);
 t_color				color_mult(t_color color, float taux);
 float				get_length(t_vec3 v);
 float				intersect_plane(t_ray ray, t_obj sphere);
-float				intersect_cylinder(t_ray ray, t_obj cylinder);
+float				intersect_cylinder(t_ray ray, t_obj obj);
 t_color				copy_color(t_color color);
 float				intersect_cone(t_ray ray, t_obj cone);
+float				intersect_cone2(t_ray ray, t_obj obj);
 float				intensity_cone(t_rt *e, t_vec3 poi,
 						t_obj cone, t_light light);
-float				intensity_sphere(t_rt *e, t_vec3 poi,
+float				intensity_sphere(t_vec3 poi,
 						t_obj sphere, t_light light);
 float				intensity_plane(t_rt *e, t_vec3 poi,
 						t_obj plane, t_light light);
@@ -241,6 +383,38 @@ float				intensity_cylinder(t_rt *e, t_vec3 poi,
 t_color				get_color(t_rt *e, t_obj obj, t_vec3 poi);
 float				get_min_dist(t_rt *e, t_ray ray, int cangoneg);
 int					obj_in_shadow(t_rt *e, t_vec3 poi, t_light light);
-float				get_res_of_quadratic(float a, float b, float c);
+float				get_res_of_quadratic(float, float, float, char *);
+
+int					xsd_read_error();
+int					doChecks(xmlDocPtr doc);
+void				xml_read_error();
+xmlDocPtr			getdoc(char *docname);
+
+
+//Matrix
+
+void				matrix_init(t_rt *e);
+// GTK
+int					parse_filename(t_rt *e, char *filename);
+void 				ft_start_rt(t_rt	*e);
+void 				ft_gtk_start(t_rt *e, int argc, char **argv);
+
+// GtkWidget 			*ft_gtk_new_btn(t_rt *e, int pos[], int size[], char *name);
+// GtkWidget 			*ft_gtk_new_window(gint w, gint h, gchar *name);
+
+// void 				ft_gtk_link_css(GtkWidget *window, gchar *css);
+// void 				ft_gtk_init_window(t_rt *e);
+// void 				ft_gtk_add_menu(t_rt *e);
+// void 				ft_gtk_add_logo(t_rt *e);
+// void 				ft_gtk_add_radio_filters(t_rt *e);
+// void 				ft_gtk_new_css(GtkWidget	*window, gchar *css);
+// void 				print_text(GtkEntry *entry, void *optional_data);
+// void ft_gtk_add_input_width(t_rt *e);
+// void 				ft_gtk_add_input_height(t_rt *e);
+// void 				ft_gtk_add_btn(t_rt *e);
+
+//Texture 
+
+float Get2DPerlinNoiseValue(float x, float y, float res);
 
 #endif

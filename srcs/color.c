@@ -6,17 +6,16 @@
 /*   By: bbeldame <bbeldame@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/04/09 20:14:59 by bbeldame          #+#    #+#             */
-/*   Updated: 2017/08/14 21:46:40 by rlecart          ###   ########.fr       */
+/*   Updated: 2017/08/17 21:21:50 by rlecart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <rt.h>
+#include "rt.h"
 
 t_color			copy_color(t_color color)
 {
 	t_color		newcolor;
 
-	//newcolor = (t_color *)semalloc(sizeof(t_color));
 	newcolor.r = color.r;
 	newcolor.g = color.g;
 	newcolor.b = color.b;

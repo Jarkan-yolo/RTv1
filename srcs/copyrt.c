@@ -6,7 +6,7 @@
 /*   By: jribeiro <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/08/22 23:14:17 by jribeiro          #+#    #+#             */
-/*   Updated: 2017/08/27 21:09:28 by jribeiro         ###   ########.fr       */
+/*   Updated: 2017/09/17 17:26:06 by jribeiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ t_obj				copy_objs(t_obj obj)
 	copy.color = obj.color;
 	copy.pos = obj.pos;
 	copy.dir = obj.dir;
-	copy.size = obj.size;
+	copy.angle = obj.angle;
 	copy.vector = obj.vector;
 	copy.maxp = obj.maxp;
 	copy.minp = obj.minp;
@@ -40,6 +40,14 @@ t_obj				copy_objs(t_obj obj)
 	copy.t = obj.t;
 	copy.normal = obj.normal;
 	copy.mat = obj.mat;
+	copy.plimit_active = obj.plimit_active;
+	copy.plimit_valid = obj.plimit_valid;
+	copy.plimit_type = obj.plimit_type;
+	if (copy.plimit_active == 1)
+	{
+		copy.plimit = (t_obj *)malloc(sizeof(t_obj) + 1);
+		*(copy.plimit) = copy_objs(*(obj.plimit));
+	}
 	return (copy);
 }
 
@@ -62,14 +70,14 @@ t_scene				copy_scene(t_scene scene)
 		copy.obj[i] = copy_objs(scene.obj[i]);
 		++i;
 	}
-	copy.last = ft_strdup(scene.last);
+	copy.last = scene.last;
 	copy.nbr_light = scene.nbr_light;
 	copy.nbr_obj = scene.nbr_obj;
 	copy.nbr_tot = scene.nbr_tot;
+	copy.ambient = scene.ambient;
 	copy.id = scene.id;
 	copy.supersampling = scene.supersampling;
 	copy.cam = scene.cam;
-
 	return (copy);
 }
 
@@ -84,5 +92,6 @@ t_rt				*copy_rt(t_rt *e)
 	copy->img_temp = NULL;
 	copy->file.larg = e->file.larg;
 	copy->file.haut = e->file.haut;
+	copy->file.reso = e->file.reso;
 	return (copy);
 }

@@ -6,7 +6,7 @@
 #    By: ocojeda- <ocojeda-@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/03/26 19:16:02 by bbeldame          #+#    #+#              #
-#    Updated: 2017/08/27 21:46:22 by jribeiro         ###   ########.fr        #
+#    Updated: 2017/08/14 22:04:16 by rlecart          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,16 +28,30 @@ SRC			=	color.c \
 				set_ocl.c \
 				sphere.c \
 				supersampler.c \
-				copyrt.c
-MINILIBX	=	minilibx_macos/libmlx.a
-LIBFT		=	libft/libft.a
-LIBVEC		=	libvec/libvec.a
+				filters.c \
+				cone2.c \
+				copyrt.c \
+				thread.c \
+				xml_parser.c \
+				xml_errors.c \
+				xml_checks.c \
+				create_complex.c \
+				matrix.c \
+				debug.c
+				# gtk_btn.c 			\
+				# gtk_init.c 			\
+				# gtk_input.c 		\
+				# gtk_new.c	
+MINILIBX	=	libs/minilibx/libmlx.a
+LIBFT		=	libs/libft/libft.a
+LIBVEC		=	libs/libvec/libvec.a
+LIBXML		=	-lxml2
 OBJ			=	$(addprefix $(OBJDIR),$(SRC:.c=.o))
 CC			=	gcc
-CFLAGS		=	-g -Wall -Werror -Wextra -I includes/ -I libft/includes/ -I libvec/includes/
+CFLAGS		=	-Wall -Werror -Wextra -I includes/ -I libs/libft/includes/ -I libs/libvec/includes/ -I libs/libxml/ -I libs/gtk+3/ `pkg-config --cflags gtk+-3.0`
 OPTI		=	-O3
 DEBUG		=	-g
-MLXF		=	-framework OpenGL -framework AppKit
+MLXF		=	-framework OpenGL -framework AppKit `pkg-config --libs gtk+-3.0`
 
 WHITE		=	\033[7;49;39m
 BLUE		=	\033[7;49;34m
@@ -53,7 +67,7 @@ all: mlx lib vec $(NAME)
 $(NAME): $(MINILIBX) $(LIBFT) $(GRAPHICS) $(OBJDIR) $(OBJ)
 	@printf "\r$(GREEN)[$(PROJECT)] Obj compilation done.                                                        \n"
 	@printf "$(YELLOW)[$(PROJECT)] Compiling $(NAME)..."
-	@$(CC) $(CFLAGS) $(MLXF) -o $(NAME) $(OBJ) $(MINILIBX) $(LIBFT) $(LIBVEC)
+	@$(CC) $(CFLAGS) $(DEBUG) $(MLXF) -o $(NAME) $(OBJ) $(MINILIBX) $(LIBFT) $(LIBVEC) $(LIBXML)
 	@printf "\r$(GREEN)[$(PROJECT)] Compilation done.                          \n$(NO_COLOR)"
 
 $(OBJDIR)%.o: $(SRCDIR)%.c
@@ -62,29 +76,29 @@ $(OBJDIR)%.o: $(SRCDIR)%.c
 
 mlx:
 	@printf "$(YELLOW)[MINILIBX] Compiling obj...                                                     \r$(NO_COLOR)"
-	@make -s -C minilibx_macos 2> /dev/null > /dev/null
+	@make -s -C libs/minilibx 2> /dev/null > /dev/null
 
 lib:
-	@make -s -C libft 2> /dev/null > /dev/null
+	@make -s -C libs/libft 2> /dev/null > /dev/null
 
 vec:
-	@make -s -C libvec 2> /dev/null > /dev/null
+	@make -s -C libs/libvec 2> /dev/null > /dev/null
 
 $(OBJDIR):
 	@mkdir $(OBJDIR)
 
 clean:
-	@make -s -C libft clean
-	@make -s -C libvec clean
+	@make -s -C libs/libft clean
+	@make -s -C libs/libvec clean
 	@printf "$(YELLOW)[$(PROJECT)] Removing obj..."
 	@rm -rf $(OBJ)
 	@rm -rf $(OBJDIR)
 	@printf "\r$(GREEN)[$(PROJECT)] Obj removed.                                                   \n$(NO_COLOR)"
 
 fclean:
-	@make -s -C minilibx_macos clean
-	@make -s -C libft fclean
-	@make -s -C libvec fclean
+	@make -s -C libs/minilibx clean
+	@make -s -C libs/libft fclean
+	@make -s -C libs/libvec fclean
 	@printf "$(YELLOW)[$(PROJECT)] Removing obj..."
 	@rm -rf $(OBJ)
 	@rm -rf $(OBJDIR)

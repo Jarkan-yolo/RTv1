@@ -6,11 +6,11 @@
 /*   By: mhalit <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/08/03 02:51:19 by mhalit            #+#    #+#             */
-/*   Updated: 2017/08/15 11:45:11 by mhalit           ###   ########.fr       */
+/*   Updated: 2017/08/17 21:21:50 by rlecart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <rt.h>
+#include "rt.h"
 
 t_color			c_color(float r, float g, float b)
 {
@@ -26,52 +26,60 @@ t_matiere	create_matiere(void)
 {
 	t_matiere	mat;
 
-	mat.amb = 0;
 	mat.reflex = 0;
 	mat.specular = 0;
 	mat.opacite = 1;
 	return (mat);
 }
 
-int			camera_create(t_rt *env)
+int			camera_create(t_rt *e)
 {
-	env->scene.cam.ray.pos = vec_new3(0, 0, -2000);
-	env->scene.cam.ray.dir = vec_new3(0, 0, 1);
-	env->scene.cam.focale = 1;
-	env->scene.cam.reso = 300;
-	return (1);
+	e->scene.cam.ray.pos = vec_new3(0, 0, -500);
+	e->scene.cam.ray.dir = vec_new3(0, 0, 1);
+	e->scene.cam.fov = 1;
+	e->scene.cam.transl = vec_new3(0, 0, 0);
+	e->scene.cam.rotx = 0;
+	e->scene.cam.roty = 0;
+	e->scene.cam.rotz = 0;
+	e->scene.cam.ctw = id_matrx4();
+	e->scene.cam.ratio_x = (LARGEUR > HAUTEUR) ? (float)LARGEUR / (float)HAUTEUR : 1;
+	e->scene.cam.ratio_y = (HAUTEUR > LARGEUR) ? (float)HAUTEUR / (float)LARGEUR : 1;
+	e->scene.cam.focale = 1;
+	e->scene.cam.reso = 300;
+	return (CAMERA);
 }
 
-int			create_obj(int type, t_rt *env)
+int			create_obj(int type, t_rt *e)
 {
 	int		i;
 
-	i = env->scene.nbr_obj;
-	env->COBJ.is_init = 1;
-	env->COBJ.type = type;
-	env->COBJ.color = c_color(255, 255, 255);
-	env->COBJ.pos = vec_new3(0, 0, 0);
-	env->COBJ.dir = vec_new3(0, 0, 0);
-	env->COBJ.size = 0;
-	env->COBJ.maxp = vec_new3(0, 0, 0);
-	env->COBJ.minp = vec_new3(0, 0, 0);
-	env->COBJ.r = 0;
-	env->COBJ.t = -1;
-	env->COBJ.mat = create_matiere();
-	env->scene.nbr_obj++;
-	return (1);
+	i = e->scene.nbr_obj;
+	e->COBJ.is_init = 1;
+	e->COBJ.type = type;
+	e->COBJ.color = c_color(255, 255, 255);
+	e->COBJ.pos = vec_new3(0, 0, 0);
+	e->COBJ.dir = vec_new3(0, 0, 0);
+	e->COBJ.angle = 0;
+	e->COBJ.maxp = vec_new3(0, 0, 0);
+	e->COBJ.minp = vec_new3(0, 0, 0);
+	e->COBJ.r = 0;
+	e->COBJ.t = -1;
+	e->COBJ.mat = create_matiere();
+	e->COBJ.normal = vec_new3(0, 0, 0);
+	e->scene.nbr_obj++;
+	return (type);
 }
 
-int			create_light(t_rt *env)
+int			create_light(t_rt *e)
 {
 	int		i;
 
-	i = env->scene.nbr_light;
-	env->CLIGHT.is_init = 1;
-	env->CLIGHT.ray.pos = vec_new3(0, 0, 0);
-	env->CLIGHT.ray.dir = vec_new3(0, 0, 0);
-	env->CLIGHT.color = c_color(255, 255, 255);
-	env->CLIGHT.intensity = 0;
-	env->scene.nbr_light++;
-	return (1);
+	i = e->scene.nbr_light;
+	e->CLIGHT.is_init = 1;
+	e->CLIGHT.ray.pos = vec_new3(0, 0, 0);
+	e->CLIGHT.ray.dir = vec_new3(0, 0, 0);
+	e->CLIGHT.color = c_color(255, 255, 255);
+	e->CLIGHT.intensity = 0;
+	e->scene.nbr_light++;
+	return (LIGHT);
 }
